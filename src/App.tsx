@@ -128,7 +128,7 @@ function FeedbackForm({ onClose }: { onClose: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 py-2 flex flex-col">
       <p className="text-sm text-[#9ca3af] mb-2">
-        We'd love to hear your thoughts on how we can improve Breath Force.
+        What can we do to improve Breath Force for you?
       </p>
 
       <div className="flex flex-col gap-1.5">
