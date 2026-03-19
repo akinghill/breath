@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Slider } from '@/components/ui/slider'
 import { playChime } from '@/lib/audio'
+import { WeeklyHabitTracker } from '@/components/WeeklyHabitTracker'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,19 +79,6 @@ function todayKey(): string {
   return new Date().toISOString().slice(0, 10)
 }
 
-/** Returns the ISO date strings for Mon–Sun of the current week. */
-function currentWeekDays(): string[] {
-  const now = new Date()
-  const day = now.getDay() // 0 = Sun
-  const monday = new Date(now)
-  monday.setDate(now.getDate() - ((day + 6) % 7))
-  return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday)
-    d.setDate(monday.getDate() + i)
-    return d.toISOString().slice(0, 10)
-  })
-}
-
 function loadHabit(): Record<string, number> {
   try {
     return JSON.parse(localStorage.getItem(HABIT_KEY) ?? '{}')
@@ -102,15 +90,6 @@ function loadHabit(): Record<string, number> {
 function saveHabit(data: Record<string, number>) {
   localStorage.setItem(HABIT_KEY, JSON.stringify(data))
 }
-
-const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-
-const SESSION_COLORS = [
-  '#22233a', // 0 – empty
-  '#3b3d7a', // 1 – low
-  '#5558c8', // 2 – mid
-  '#6366f1', // 3 – full
-]
 
 function FeedbackForm({ onClose }: { onClose: () => void }) {
   const [state, handleSubmit] = useForm("maqpakek");
@@ -232,7 +211,6 @@ export default function App() {
   const openSettings = () => { setDraft(settings); setSettingsOpen(true) }
   const saveSettings = () => { setSettings(draft); setSettingsOpen(false) }
 
-  const weekDays = currentWeekDays()
   const today = todayKey()
 
   return (
@@ -269,26 +247,7 @@ export default function App() {
           </p>
 
           {/* Weekly habit tracker */}
-          <div className="flex gap-2 mb-8">
-            {weekDays.map((date, i) => {
-              const count = habit[date] ?? 0
-              const isToday = date === today
-              return (
-                <div key={date} className="flex flex-col items-center gap-1.5">
-                  <div
-                    className="w-9 h-9 rounded-lg transition-colors duration-300"
-                    style={{ backgroundColor: SESSION_COLORS[count] }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{ color: isToday ? '#6b7280' : '#3a3b4a' }}
-                  >
-                    {DAY_LABELS[i]}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
+          <WeeklyHabitTracker habit={habit} today={today} />
 
           <div className="w-full space-y-3">
             {status !== 'idle' && (
