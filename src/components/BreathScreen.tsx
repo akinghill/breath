@@ -114,7 +114,7 @@ export function BreathScreen({
           <div className="flex justify-center items-center pt-2">
             <button
               onClick={onOptions}
-              className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider"
+              className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider underline underline-offset-4"
             >
               Options
             </button>

@@ -35,7 +35,7 @@ export function OptionsScreen({ onOpenSettings, onOpenFeedback, onBack }: Option
       <div className="w-full flex justify-center mt-auto pt-6">
         <button
           onClick={onBack}
-          className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider"
+          className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider underline underline-offset-4"
         >
           Back
         </button>
