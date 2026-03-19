@@ -9,15 +9,23 @@ import { useBreathingSession } from '@/hooks/useBreathingSession'
 import type { AppSettings } from '@/hooks/useBreathingSession'
 
 export default function App() {
-  const [settings, setSettings] = useState<AppSettings>({ baseTime: 5, maxRounds: 10 })
+  const [settings, setSettings] = useState<AppSettings>(() => {
+    const defaults = { baseTime: 5, maxRounds: 10, showTimer: true }
+    try {
+      const saved = localStorage.getItem('breath-settings')
+      if (saved) return { ...defaults, ...JSON.parse(saved) }
+    } catch {}
+    return defaults
+  })
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [currentView, setCurrentView] = useState<'breath' | 'options'>('breath')
 
-  const { status, phase, sets, habit, today, start, pause, resume, stop } = useBreathingSession(settings)
+  const { status, phase, timeLeft, sets, habit, today, start, pause, resume, stop } = useBreathingSession(settings)
 
   const handleSaveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings)
+    localStorage.setItem('breath-settings', JSON.stringify(newSettings))
     setSettingsOpen(false)
   }
 
@@ -31,6 +39,7 @@ export default function App() {
             <BreathScreen
               status={status}
               phase={phase}
+              timeLeft={timeLeft}
               sets={sets}
               settings={settings}
               habit={habit}

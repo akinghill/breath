@@ -7,6 +7,7 @@ export type Status = 'idle' | 'running' | 'paused'
 export type AppSettings = {
   baseTime: number
   maxRounds: number
+  showTimer: boolean
 }
 
 type State = {
@@ -169,5 +170,5 @@ export function useBreathingSession(settings: AppSettings) {
   const resume = () => dispatch({ type: 'resume' })
   const stop = () => dispatch({ type: 'stop' })
 
-  return { status, phase, sets, habit, today: todayKey(), start, pause, resume, stop }
+  return { status, phase, timeLeft: state.timeLeft, sets, habit, today: todayKey(), start, pause, resume, stop }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
+import { Switch } from '@/components/ui/switch'
 import type { AppSettings } from '@/hooks/useBreathingSession'
 
 interface SettingsOptionsProps {
@@ -42,6 +43,14 @@ export function SettingsOptions({ settings, onSave }: SettingsOptionsProps) {
             step={1}
             value={[draft.maxRounds]}
             onValueChange={([v]) => setDraft(d => ({ ...d, maxRounds: v }))}
+          />
+        </div>
+
+        <div className="flex justify-between items-center pt-2">
+          <label className="text-sm text-[#9ca3af]">Show Timer</label>
+          <Switch 
+            checked={draft.showTimer} 
+            onCheckedChange={(c) => setDraft(d => ({ ...d, showTimer: c }))} 
           />
         </div>
       </div>

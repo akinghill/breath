@@ -8,6 +8,7 @@ import type { AppSettings, Phase, Status } from '@/hooks/useBreathingSession'
 interface BreathScreenProps {
   status: Status
   phase: Phase
+  timeLeft: number
   sets: number
   settings: AppSettings
   habit: Record<string, number>
@@ -22,6 +23,7 @@ interface BreathScreenProps {
 export function BreathScreen({
   status,
   phase,
+  timeLeft,
   sets,
   settings,
   habit,
@@ -75,9 +77,16 @@ export function BreathScreen({
             cursor: status === 'idle' ? 'pointer' : 'default',
           }}
         >
-          <span className="text-white font-bold text-2xl tracking-widest select-none">
-            {circleLabel()}
-          </span>
+          <div className="flex flex-col items-center justify-center">
+            <span className="text-white font-bold text-2xl tracking-widest select-none">
+              {circleLabel()}
+            </span>
+            {settings.showTimer && status !== 'idle' && (
+              <span className="text-white/70 font-mono text-xl mt-1 select-none">
+                {timeLeft}s
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
