@@ -86,6 +86,50 @@ export function useBreathingSession(settings: AppSettings) {
   
   const prevStatusRef = useRef<Status>('idle')
   const prevPhaseRef = useRef<Phase>('inhale')
+  const wakeLockRef = useRef<any>(null)
+
+  // Screen wake lock
+  useEffect(() => {
+    const requestWakeLock = async () => {
+      try {
+        if ('wakeLock' in navigator && document.visibilityState === 'visible') {
+          wakeLockRef.current = await (navigator as any).wakeLock.request('screen')
+        }
+      } catch (err) {
+        console.error('Failed to acquire wake lock', err)
+      }
+    }
+
+    const releaseWakeLock = async () => {
+      if (wakeLockRef.current) {
+        try {
+          await wakeLockRef.current.release()
+          wakeLockRef.current = null
+        } catch (err) {
+          console.error('Failed to release wake lock', err)
+        }
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && status === 'running') {
+        requestWakeLock()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    if (status === 'running') {
+      requestWakeLock()
+    } else {
+      releaseWakeLock()
+    }
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      releaseWakeLock()
+    }
+  }, [status])
 
   // Detect session completion (running → idle with full sets)
   useEffect(() => {
