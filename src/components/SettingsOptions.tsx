@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Button } from '@/components/ui/button'
-import type { AppSettings } from '@/App'
+import type { AppSettings } from '@/hooks/useBreathingSession'
 
 interface SettingsOptionsProps {
   settings: AppSettings
