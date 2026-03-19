@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Slider } from '@/components/ui/slider'
+import { playChime } from '@/lib/audio'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -179,6 +180,7 @@ export default function App() {
   const [habit, setHabit] = useState<Record<string, number>>(loadHabit)
 
   const prevStatusRef = useRef<Status>('idle')
+  const prevPhaseRef = useRef<Phase>('inhale')
 
   // Detect session completion (running → idle with full sets)
   useEffect(() => {
@@ -189,9 +191,18 @@ export default function App() {
         saveHabit(next)
         return next
       })
+      playChime(1046.50) // completion chime
     }
     prevStatusRef.current = status
   }, [status, sets, settings.maxRounds])
+
+  // Play chime on phase change
+  useEffect(() => {
+    if (status === 'running' && prevPhaseRef.current !== phase) {
+      playChime(880) // phase change chime
+    }
+    prevPhaseRef.current = phase
+  }, [phase, status])
 
   // Interval tick
   useEffect(() => {
