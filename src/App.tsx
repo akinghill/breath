@@ -101,6 +101,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
   const [habit, setHabit] = useState<Record<string, number>>(loadHabit)
+  const [currentView, setCurrentView] = useState<'breath' | 'options'>('breath')
 
   const prevStatusRef = useRef<Status>('idle')
   const prevPhaseRef = useRef<Phase>('inhale')
@@ -163,79 +164,114 @@ export default function App() {
     <div className="min-h-screen bg-[#0d0e14] flex items-center justify-center p-6">
 
       <Card className="w-full max-w-sm bg-[#16171d] border-[#2a2b3a]">
-        <CardContent className="p-8 flex flex-col items-center">
+        <CardContent className="p-8 flex flex-col items-center w-full">
 
-          <header className="text-center mb-10">
-            <h1 className="text-5xl font-bold text-[#6867b3] tracking-tight">Breath Force</h1>
-            <p className="text-[#6b7280] mt-2 text-lg">Find your center</p>
-          </header>
+          {currentView === 'breath' ? (
+            <>
+              <header className="text-center mb-10">
+                <h1 className="text-5xl font-bold text-[#6867b3] tracking-tight">Breath Force</h1>
+                <p className="text-[#6b7280] mt-2 text-lg">Find your center</p>
+              </header>
 
-          <div className="flex items-center justify-center mb-10">
-            <div
-              onClick={() => {
-                if (status === 'idle') {
-                  playChime(880)
-                  dispatch({ type: 'start', settings })
-                }
-              }}
-              className="w-56 h-56 rounded-full flex items-center justify-center"
-              style={{
-                ...circleStyle(),
-                background: 'radial-gradient(circle at center, #161830 0%, #0d0e14 70%)',
-                border: '2px solid #6366f1',
-                boxShadow: '0 0 40px rgba(99,102,241,0.5), 0 0 80px rgba(99,102,241,0.2), inset 0 0 40px rgba(99,102,241,0.1)',
-                cursor: status === 'idle' ? 'pointer' : 'default',
-              }}
-            >
-              <span className="text-white font-bold text-2xl tracking-widest select-none">
-                {circleLabel()}
-              </span>
-            </div>
-          </div>
-
-          <p className="text-[#6b7280] text-sm mb-8">
-            Round {sets}/{settings.maxRounds}
-          </p>
-
-          {/* Weekly habit tracker */}
-          <WeeklyHabitTracker habit={habit} today={today} />
-
-          <div className="w-full space-y-3">
-            {status !== 'idle' && (
-              <div className="flex gap-3">
-                <Button
-                  onClick={() => dispatch({ type: status === 'paused' ? 'resume' : 'pause' })}
-                  className="flex-1 bg-[#5c5fc2] hover:bg-[#6366f1] text-white"
+              <div className="flex items-center justify-center mb-10">
+                <div
+                  onClick={() => {
+                    if (status === 'idle') {
+                      playChime(880)
+                      dispatch({ type: 'start', settings })
+                    }
+                  }}
+                  className="w-56 h-56 rounded-full flex items-center justify-center"
+                  style={{
+                    ...circleStyle(),
+                    background: 'radial-gradient(circle at center, #161830 0%, #0d0e14 70%)',
+                    border: '2px solid #6366f1',
+                    boxShadow: '0 0 40px rgba(99,102,241,0.5), 0 0 80px rgba(99,102,241,0.2), inset 0 0 40px rgba(99,102,241,0.1)',
+                    cursor: status === 'idle' ? 'pointer' : 'default',
+                  }}
                 >
-                  {status === 'paused' ? 'Resume' : 'Pause'}
+                  <span className="text-white font-bold text-2xl tracking-widest select-none">
+                    {circleLabel()}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col items-center mb-8 gap-1">
+                <p className="text-[#6b7280] text-sm">
+                  Round {sets}/{settings.maxRounds}
+                </p>
+                <p className="text-[#4a4b5e] text-xs font-semibold tracking-widest uppercase">
+                  {settings.baseTime} : {settings.baseTime * 4} : {settings.baseTime * 2}
+                </p>
+              </div>
+
+              {/* Weekly habit tracker */}
+              <WeeklyHabitTracker habit={habit} today={today} />
+
+              <div className="w-full space-y-3 mt-4">
+                {status !== 'idle' && (
+                  <div className="flex gap-3">
+                    <Button
+                      onClick={() => dispatch({ type: status === 'paused' ? 'resume' : 'pause' })}
+                      className="flex-1 bg-[#5c5fc2] hover:bg-[#6366f1] text-white"
+                    >
+                      {status === 'paused' ? 'Resume' : 'Pause'}
+                    </Button>
+                    <Button
+                      onClick={() => dispatch({ type: 'stop' })}
+                      variant="outline"
+                      className="flex-1 border-[#4a4b5e] text-white bg-transparent hover:bg-[#252638]"
+                    >
+                      Stop
+                    </Button>
+                  </div>
+                )}
+                {status === 'idle' && (
+                  <div className="flex justify-center items-center pt-2">
+                    <button
+                      onClick={() => setCurrentView('options')}
+                      className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider"
+                    >
+                      Options
+                    </button>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="w-full flex flex-col items-center min-h-[460px]">
+              <header className="text-center mb-10 mt-4">
+                <h1 className="text-4xl font-bold text-[#6867b3] tracking-tight">Options</h1>
+                <p className="text-[#6b7280] mt-2 text-md">Customize your experience</p>
+              </header>
+              <div className="w-full space-y-4 flex flex-col flex-1">
+                <Button
+                  onClick={() => setSettingsOpen(true)}
+                  variant="outline"
+                  className="w-full border-[#4a4b5e] text-white bg-[#1a1b26] hover:bg-[#252638] flex items-center justify-start gap-4 h-14 text-lg px-6"
+                >
+                  <Settings size={22} className="text-[#6366f1]" />
+                  Settings
                 </Button>
                 <Button
-                  onClick={() => dispatch({ type: 'stop' })}
+                  onClick={() => setFeedbackOpen(true)}
                   variant="outline"
-                  className="flex-1 border-[#4a4b5e] text-white bg-transparent hover:bg-[#252638]"
+                  className="w-full border-[#4a4b5e] text-white bg-[#1a1b26] hover:bg-[#252638] flex items-center justify-start gap-4 h-14 text-lg px-6"
                 >
-                  Stop
+                  <MessageSquare size={22} className="text-[#6366f1]" />
+                  Feedback
                 </Button>
               </div>
-            )}
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => setFeedbackOpen(true)}
-                disabled={status !== 'idle'}
-                className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-2 text-sm font-medium"
-              >
-                <MessageSquare size={20} />
-                Feedback
-              </button>
-              <button
-                onClick={() => setSettingsOpen(true)}
-                disabled={status !== 'idle'}
-                className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <Settings size={20} />
-              </button>
+              <div className="w-full flex justify-center mt-auto pt-6">
+                <button
+                  onClick={() => setCurrentView('breath')}
+                  className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors text-sm font-medium uppercase tracking-wider"
+                >
+                  Back
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
         </CardContent>
       </Card>
