@@ -37,10 +37,22 @@ export function WeeklyHabitTracker({ habit, today }: WeeklyHabitTrackerProps) {
         const isToday = date === today
         return (
           <div key={date} className="flex flex-col items-center gap-1.5">
-            <div
-              className="w-9 h-9 rounded-lg transition-colors duration-300"
-              style={{ backgroundColor: SESSION_COLORS[count] }}
-            />
+            <div className="flex flex-col justify-between w-8 h-8 my-0.5">
+              {[0, 1, 2].map((barIdx) => {
+                let colorLevel = 0
+                if (count === 1 && barIdx === 2) colorLevel = 1
+                else if (count === 2 && barIdx >= 1) colorLevel = 2
+                else if (count >= 3) colorLevel = 3
+
+                return (
+                  <div
+                    key={barIdx}
+                    className="w-full h-2 rounded-full transition-colors duration-300"
+                    style={{ backgroundColor: SESSION_COLORS[colorLevel] }}
+                  />
+                )
+              })}
+            </div>
             <span
               className="text-xs"
               style={{ color: isToday ? '#6b7280' : '#3a3b4a' }}
