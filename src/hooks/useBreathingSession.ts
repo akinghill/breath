@@ -63,7 +63,11 @@ function reducer(state: State, action: Action): State {
 const HABIT_KEY = 'breath-habit'
 
 export function todayKey(): string {
-  return new Date().toISOString().slice(0, 10)
+  const d = new Date()
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function loadHabit(): Record<string, number> {
@@ -136,7 +140,7 @@ export function useBreathingSession(settings: AppSettings) {
     if (prevStatusRef.current === 'running' && status === 'idle' && sets === settings.maxRounds) {
       const key = todayKey()
       setHabit(prev => {
-        const next = { ...prev, [key]: Math.min((prev[key] ?? 0) + 1, 3) }
+        const next = { ...prev, [key]: (prev[key] ?? 0) + 1 }
         saveHabit(next)
         return next
       })
