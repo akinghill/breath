@@ -61,7 +61,7 @@ export function Subtitle({ status }: SubtitleProps) {
 
   return (
     <div className="h-8 mt-2 flex items-center justify-center overflow-hidden w-full max-w-md mx-auto">
-      <div className="grid grid-cols-[1fr_auto_1fr] gap-[0.3em] w-full text-[#6b7280] text-lg">
+      <h2 className="grid grid-cols-[1fr_auto_1fr] gap-[0.3em] w-full text-[#6b7280] text-lg font-normal">
         <div className="text-right flex items-center justify-end">
           <span
             className={`inline-block ${animState === 'visible' ? 'transition-all duration-800 ease-in-out opacity-100 translate-y-0 translate-x-0' :
@@ -85,7 +85,7 @@ export function Subtitle({ status }: SubtitleProps) {
             {NOUNS[nounIndex]}
           </span>
         </div>
-      </div>
+      </h2>
     </div>
   )
 }
