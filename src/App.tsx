@@ -3,17 +3,17 @@ import { Settings, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Slider } from '@/components/ui/slider'
 import { playChime } from '@/lib/audio'
 import { WeeklyHabitTracker } from '@/components/WeeklyHabitTracker'
 import { FeedbackForm } from '@/components/FeedbackForm'
+import { SettingsOptions } from '@/components/SettingsOptions'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
 type Phase = 'inhale' | 'hold' | 'exhale'
 type Status = 'idle' | 'running' | 'paused'
 
-type AppSettings = {
+export type AppSettings = {
   baseTime: number
   maxRounds: number
 }
@@ -100,7 +100,6 @@ export default function App() {
   const [settings, setSettings] = useState<AppSettings>({ baseTime: 5, maxRounds: 10 })
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
-  const [draft, setDraft] = useState<AppSettings>(settings)
   const [habit, setHabit] = useState<Record<string, number>>(loadHabit)
 
   const prevStatusRef = useRef<Status>('idle')
@@ -153,8 +152,10 @@ export default function App() {
     return phase.toUpperCase()
   }
 
-  const openSettings = () => { setDraft(settings); setSettingsOpen(true) }
-  const saveSettings = () => { setSettings(draft); setSettingsOpen(false) }
+  const handleSaveSettings = (newSettings: AppSettings) => {
+    setSettings(newSettings)
+    setSettingsOpen(false)
+  }
 
   const today = todayKey()
 
@@ -227,7 +228,7 @@ export default function App() {
                 Feedback
               </button>
               <button
-                onClick={openSettings}
+                onClick={() => setSettingsOpen(true)}
                 disabled={status !== 'idle'}
                 className="text-[#4a4b5e] hover:text-[#6b7280] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
@@ -245,45 +246,7 @@ export default function App() {
             <DialogTitle className="text-white">Settings</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6 py-2">
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-sm text-[#9ca3af]">Base Time</label>
-                <span className="text-sm font-medium">{draft.baseTime}s</span>
-              </div>
-              <Slider
-                min={2}
-                max={10}
-                step={1}
-                value={[draft.baseTime]}
-                onValueChange={([v]) => setDraft(d => ({ ...d, baseTime: v }))}
-              />
-              <p className="text-xs text-[#4a4b5e]">
-                Inhale {draft.baseTime}s · Hold {draft.baseTime * 4}s · Exhale {draft.baseTime * 2}s
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <label className="text-sm text-[#9ca3af]">Rounds</label>
-                <span className="text-sm font-medium">{draft.maxRounds}</span>
-              </div>
-              <Slider
-                min={1}
-                max={20}
-                step={1}
-                value={[draft.maxRounds]}
-                onValueChange={([v]) => setDraft(d => ({ ...d, maxRounds: v }))}
-              />
-            </div>
-          </div>
-
-          <Button
-            onClick={saveSettings}
-            className="w-full bg-[#5c5fc2] hover:bg-[#6366f1] text-white mt-2"
-          >
-            Save
-          </Button>
+          <SettingsOptions settings={settings} onSave={handleSaveSettings} />
         </DialogContent>
       </Dialog>
 
