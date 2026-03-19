@@ -2,6 +2,7 @@ import React from 'react'
 import { Button } from '@/components/ui/button'
 import { WeeklyHabitTracker } from '@/components/WeeklyHabitTracker'
 import { playChime } from '@/lib/audio'
+import { Subtitle } from '@/components/Subtitle'
 import type { AppSettings, Phase, Status } from '@/hooks/useBreathingSession'
 
 interface BreathScreenProps {
@@ -54,7 +55,7 @@ export function BreathScreen({
     <>
       <header className="text-center mb-10">
         <h1 className="text-5xl font-bold text-[#6867b3] tracking-tight">Breath Force</h1>
-        <p className="text-[#6b7280] mt-2 text-lg">Find your center</p>
+        <Subtitle status={status} />
       </header>
 
       <div className="flex items-center justify-center mb-10">
