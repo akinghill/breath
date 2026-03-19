@@ -11,14 +11,15 @@ interface SubtitleProps {
 export function Subtitle({ status }: SubtitleProps) {
   const [verbIndex, setVerbIndex] = useState(0)
   const [nounIndex, setNounIndex] = useState(0)
-  const [isVisible, setIsVisible] = useState(true)
+  const [animState, setAnimState] = useState<'visible' | 'exiting' | 'hidden'>('visible')
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+  const snapTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   useEffect(() => {
     if (status !== 'idle') return
 
     const intervalId = setInterval(() => {
-      setIsVisible(false)
+      setAnimState('exiting')
 
       timeoutRef.current = setTimeout(() => {
         setVerbIndex((current) => {
@@ -35,8 +36,13 @@ export function Subtitle({ status }: SubtitleProps) {
           } while (next === current)
           return next
         })
-        setIsVisible(true)
-      }, 500)
+
+        setAnimState('hidden')
+
+        snapTimeoutRef.current = setTimeout(() => {
+          setAnimState('visible')
+        }, 800)
+      }, 1000)
     }, 6000)
 
     return () => {
@@ -49,6 +55,7 @@ export function Subtitle({ status }: SubtitleProps) {
   useEffect(() => {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (snapTimeoutRef.current) clearTimeout(snapTimeoutRef.current)
     }
   }, [])
 
@@ -57,7 +64,9 @@ export function Subtitle({ status }: SubtitleProps) {
       <div className="grid grid-cols-[1fr_auto_1fr] gap-[0.3em] w-full text-[#6b7280] text-lg">
         <div className="text-right flex items-center justify-end">
           <span
-            className={`transition-all duration-500 ease-in-out inline-block ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+            className={`inline-block ${animState === 'visible' ? 'transition-all duration-800 ease-in-out opacity-100 translate-y-0 translate-x-0' :
+                animState === 'exiting' ? 'transition-all duration-1000 ease-in-out opacity-0 -translate-y-3 -translate-x-3' :
+                  'transition-none opacity-0 translate-y-3 -translate-x-3'
               }`}
           >
             {VERBS[verbIndex]}
@@ -68,7 +77,9 @@ export function Subtitle({ status }: SubtitleProps) {
         </div>
         <div className="text-left flex items-center justify-start">
           <span
-            className={`transition-all duration-500 ease-in-out inline-block ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-3'
+            className={`inline-block ${animState === 'visible' ? 'transition-all duration-800 ease-in-out opacity-100 translate-y-0 translate-x-0' :
+                animState === 'exiting' ? 'transition-all duration-1000 ease-in-out opacity-0 translate-y-3 translate-x-3' :
+                  'transition-none opacity-0 -translate-y-3 translate-x-3'
               }`}
           >
             {NOUNS[nounIndex]}
