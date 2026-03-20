@@ -16,6 +16,24 @@ export function SettingsOptions({ settings, onSave }: SettingsOptionsProps) {
     <>
       <div className="space-y-6 py-2">
         <div className="space-y-3">
+          <label className="text-sm text-[#9ca3af]">Breathing Method</label>
+          <div className="flex bg-[#1a1b26] p-1 rounded-lg border border-[#2a2b3a]">
+            <button
+              onClick={() => setDraft(d => ({ ...d, mode: 'power' }))}
+              className={`flex-1 py-1.5 text-sm rounded-md transition-colors ${draft.mode === 'power' ? 'bg-[#5c5fc2] text-white' : 'text-[#6b7280] hover:text-white'}`}
+            >
+              Power
+            </button>
+            <button
+              onClick={() => setDraft(d => ({ ...d, mode: 'box' }))}
+              className={`flex-1 py-1.5 text-sm rounded-md transition-colors ${draft.mode === 'box' ? 'bg-[#5c5fc2] text-white' : 'text-[#6b7280] hover:text-white'}`}
+            >
+              Box
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
             <label className="text-sm text-[#9ca3af]">Base Time</label>
             <span className="text-sm font-medium">{draft.baseTime}s</span>
@@ -28,7 +46,10 @@ export function SettingsOptions({ settings, onSave }: SettingsOptionsProps) {
             onValueChange={([v]) => setDraft(d => ({ ...d, baseTime: v }))}
           />
           <p className="text-xs text-[#4a4b5e]">
-            Inhale {draft.baseTime}s · Hold {draft.baseTime * 4}s · Exhale {draft.baseTime * 2}s
+            {draft.mode === 'power'
+              ? `Inhale ${draft.baseTime}s · Hold ${draft.baseTime * 4}s · Exhale ${draft.baseTime * 2}s`
+              : `Inhale ${draft.baseTime}s · Hold ${draft.baseTime}s · Exhale ${draft.baseTime}s · Hold ${draft.baseTime}s`
+            }
           </p>
         </div>
 

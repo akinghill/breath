@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { WeeklyHabitTracker } from '@/components/WeeklyHabitTracker'
 import { playChime } from '@/lib/audio'
 import { Subtitle } from '@/components/Subtitle'
+import { getPhaseDuration } from '@/hooks/useBreathingSession'
 import type { AppSettings, Phase, Status } from '@/hooks/useBreathingSession'
 
 interface BreathScreenProps {
@@ -36,20 +37,26 @@ export function BreathScreen({
 }: BreathScreenProps) {
   const circleStyle = (): React.CSSProperties => {
     if (status !== 'running') return { transform: 'scale(0.82)', transition: 'transform 1s ease' }
+    
+    const duration = getPhaseDuration(phase, settings.baseTime, settings.mode)
+    
     switch (phase) {
       case 'inhale':
-        return { transform: 'scale(1)', transition: `transform ${settings.baseTime}s ease-in-out` }
+        return { transform: 'scale(1)', transition: `transform ${duration}s ease-in-out` }
       case 'hold':
         return { transform: 'scale(1)', transition: 'transform 0.4s ease' }
       case 'exhale':
+      case 'holdOut':
+        return { transform: 'scale(0.75)', transition: `transform ${duration}s ease-in-out` }
       default:
-        return { transform: 'scale(0.75)', transition: `transform ${settings.baseTime * 2}s ease-in-out` }
+        return { transform: 'scale(0.75)', transition: `transform ${duration}s ease-in-out` }
     }
   }
 
   const circleLabel = () => {
     if (status === 'idle') return 'READY'
     if (status === 'paused') return 'PAUSED'
+    if (phase === 'holdOut') return 'HOLD'
     return phase.toUpperCase()
   }
 
@@ -95,7 +102,9 @@ export function BreathScreen({
           Round {sets}/{settings.maxRounds}
         </p>
         <p className="text-[#4a4b5e] text-xs font-semibold tracking-widest uppercase">
-          {settings.baseTime} : {settings.baseTime * 4} : {settings.baseTime * 2}
+          {settings.mode === 'power' 
+            ? `${settings.baseTime} : ${settings.baseTime * 4} : ${settings.baseTime * 2}`
+            : `${settings.baseTime} : ${settings.baseTime} : ${settings.baseTime} : ${settings.baseTime}`}
         </p>
       </div>
 

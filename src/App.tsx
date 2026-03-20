@@ -10,7 +10,7 @@ import type { AppSettings } from '@/hooks/useBreathingSession'
 
 export default function App() {
   const [settings, setSettings] = useState<AppSettings>(() => {
-    const defaults = { baseTime: 5, maxRounds: 10, showTimer: true }
+    const defaults: AppSettings = { baseTime: 5, maxRounds: 10, showTimer: true, mode: 'power' }
     try {
       const saved = localStorage.getItem('breath-settings')
       if (saved) return { ...defaults, ...JSON.parse(saved) }

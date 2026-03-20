@@ -1,13 +1,16 @@
 import { useReducer, useEffect, useState, useRef } from 'react'
 import { playChime } from '@/lib/audio'
 
-export type Phase = 'inhale' | 'hold' | 'exhale'
+export type BreathingMode = 'power' | 'box'
+
+export type Phase = 'inhale' | 'hold' | 'exhale' | 'holdOut'
 export type Status = 'idle' | 'running' | 'paused'
 
 export type AppSettings = {
   baseTime: number
   maxRounds: number
   showTimer: boolean
+  mode: BreathingMode
 }
 
 type State = {
@@ -24,13 +27,23 @@ type Action =
   | { type: 'stop' }
   | { type: 'tick'; settings: AppSettings }
 
-function getPhaseDuration(phase: Phase, baseTime: number): number {
+export function getPhaseDuration(phase: Phase, baseTime: number, mode: BreathingMode): number {
+  if (mode === 'box') {
+    return baseTime
+  }
   if (phase === 'inhale') return baseTime
   if (phase === 'hold') return baseTime * 4
-  return baseTime * 2
+  if (phase === 'exhale') return baseTime * 2
+  return 0
 }
 
-function nextPhase(phase: Phase): Phase {
+function nextPhase(phase: Phase, mode: BreathingMode): Phase {
+  if (mode === 'box') {
+    if (phase === 'inhale') return 'hold'
+    if (phase === 'hold') return 'exhale'
+    if (phase === 'exhale') return 'holdOut'
+    return 'inhale'
+  }
   if (phase === 'inhale') return 'hold'
   if (phase === 'hold') return 'exhale'
   return 'inhale'
@@ -41,7 +54,7 @@ const initialState: State = { status: 'idle', phase: 'inhale', timeLeft: 0, sets
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'start':
-      return { status: 'running', phase: 'inhale', timeLeft: getPhaseDuration('inhale', action.settings.baseTime), sets: 0 }
+      return { status: 'running', phase: 'inhale', timeLeft: getPhaseDuration('inhale', action.settings.baseTime, action.settings.mode), sets: 0 }
     case 'pause':
       return { ...state, status: 'paused' }
     case 'resume':
@@ -51,12 +64,13 @@ function reducer(state: State, action: Action): State {
     case 'tick': {
       if (state.status !== 'running') return state
       if (state.timeLeft > 1) return { ...state, timeLeft: state.timeLeft - 1 }
-      const next = nextPhase(state.phase)
-      const newSets = state.phase === 'exhale' ? state.sets + 1 : state.sets
+      const next = nextPhase(state.phase, action.settings.mode)
+      const isRoundComplete = (action.settings.mode === 'power' && state.phase === 'exhale') || (action.settings.mode === 'box' && state.phase === 'holdOut')
+      const newSets = isRoundComplete ? state.sets + 1 : state.sets
       if (newSets >= action.settings.maxRounds) {
         return { status: 'idle', phase: 'inhale', timeLeft: 0, sets: newSets }
       }
-      return { ...state, phase: next, timeLeft: getPhaseDuration(next, action.settings.baseTime), sets: newSets }
+      return { ...state, phase: next, timeLeft: getPhaseDuration(next, action.settings.baseTime, action.settings.mode), sets: newSets }
     }
   }
 }
